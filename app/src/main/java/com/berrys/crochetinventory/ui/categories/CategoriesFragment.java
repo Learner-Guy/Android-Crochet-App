@@ -1,4 +1,4 @@
-package com.example.crochetinventory.ui.categories;
+package com.berrys.crochetinventory.ui.categories;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,10 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.crochetinventory.R;
+import com.berrys.crochetinventory.R;
 import com.google.android.material.card.MaterialCardView;
 import java.util.Arrays;
 import java.util.List;
+import android.widget.Toast;
 
 public class CategoriesFragment extends Fragment {
     private final List<String> categories = Arrays.asList(

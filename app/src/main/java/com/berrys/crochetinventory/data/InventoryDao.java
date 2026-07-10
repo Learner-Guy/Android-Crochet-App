@@ -1,4 +1,4 @@
-package com.example.crochetinventory.data;
+package com.berrys.crochetinventory.data;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;

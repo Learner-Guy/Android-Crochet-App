@@ -1,4 +1,4 @@
-package com.example.crochetinventory.ui.inventory;
+package com.berrys.crochetinventory.ui.inventory;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,9 +14,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.crochetinventory.R;
-import com.example.crochetinventory.data.AppDatabase;
-import com.example.crochetinventory.data.InventoryItem;
+import com.berrys.crochetinventory.R;
+import com.berrys.crochetinventory.data.AppDatabase;
+import com.berrys.crochetinventory.data.InventoryItem;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.List;
 

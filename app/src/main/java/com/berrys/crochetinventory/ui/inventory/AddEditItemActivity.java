@@ -1,4 +1,4 @@
-package com.example.crochetinventory.ui.inventory;
+package com.berrys.crochetinventory.ui.inventory;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,9 +13,9 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
-import com.example.crochetinventory.R;
-import com.example.crochetinventory.data.AppDatabase;
-import com.example.crochetinventory.data.InventoryItem;
+import com.berrys.crochetinventory.R;
+import com.berrys.crochetinventory.data.AppDatabase;
+import com.berrys.crochetinventory.data.InventoryItem;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import java.util.Date;

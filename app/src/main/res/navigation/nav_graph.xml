@@ -6,21 +6,21 @@
 
     <fragment
         android:id="@+id/nav_dashboard"
-        android:name="com.example.crochetinventory.ui.dashboard.DashboardFragment"
+        android:name="com.berrys.crochetinventory.ui.dashboard.DashboardFragment"
         android:label="Dashboard" />
 
     <fragment
         android:id="@+id/nav_inventory"
-        android:name="com.example.crochetinventory.ui.inventory.InventoryFragment"
+        android:name="com.berrys.crochetinventory.ui.inventory.InventoryFragment"
         android:label="Inventory" />
 
     <fragment
         android:id="@+id/nav_categories"
-        android:name="com.example.crochetinventory.ui.categories.CategoriesFragment"
+        android:name="com.berrys.crochetinventory.ui.categories.CategoriesFragment"
         android:label="Categories" />
 
     <fragment
         android:id="@+id/nav_low_stock"
-        android:name="com.example.crochetinventory.ui.lowstock.LowStockFragment"
+        android:name="com.berrys.crochetinventory.ui.lowstock.LowStockFragment"
         android:label="Low Stock" />
 </navigation>

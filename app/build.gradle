@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.crochetinventory'
+    namespace 'com.berrys.crochetinventory'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.crochetinventory"
+        applicationId "com.berrys.crochetinventory"
         minSdk 24
         targetSdk 34
         versionCode 1

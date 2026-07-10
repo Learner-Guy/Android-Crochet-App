@@ -1,4 +1,4 @@
-package com.example.crochetinventory.data;
+package com.berrys.crochetinventory.data;
 
 import android.content.Context;
 import androidx.room.Database;

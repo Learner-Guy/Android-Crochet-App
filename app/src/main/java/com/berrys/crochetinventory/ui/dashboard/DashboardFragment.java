@@ -1,4 +1,4 @@
-package com.example.crochetinventory.ui.dashboard;
+package com.berrys.crochetinventory.ui.dashboard;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import com.example.crochetinventory.R;
-import com.example.crochetinventory.data.AppDatabase;
+import com.berrys.crochetinventory.R;
+import com.berrys.crochetinventory.data.AppDatabase;
 import com.google.android.material.card.MaterialCardView;
 
 public class DashboardFragment extends Fragment {

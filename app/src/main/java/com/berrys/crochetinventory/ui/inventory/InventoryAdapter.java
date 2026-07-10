@@ -1,4 +1,4 @@
-package com.example.crochetinventory.ui.inventory;
+package com.berrys.crochetinventory.ui.inventory;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import com.example.crochetinventory.R;
-import com.example.crochetinventory.data.InventoryItem;
+import com.berrys.crochetinventory.R;
+import com.berrys.crochetinventory.data.InventoryItem;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 

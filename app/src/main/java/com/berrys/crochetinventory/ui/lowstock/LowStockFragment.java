@@ -1,4 +1,4 @@
-package com.example.crochetinventory.ui.lowstock;
+package com.berrys.crochetinventory.ui.lowstock;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,11 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.crochetinventory.R;
-import com.example.crochetinventory.data.AppDatabase;
-import com.example.crochetinventory.data.InventoryItem;
-import com.example.crochetinventory.ui.inventory.AddEditItemActivity;
-import com.example.crochetinventory.ui.inventory.InventoryAdapter;
+import com.berrys.crochetinventory.R;
+import com.berrys.crochetinventory.data.AppDatabase;
+import com.berrys.crochetinventory.data.InventoryItem;
+import com.berrys.crochetinventory.ui.inventory.AddEditItemActivity;
+import com.berrys.crochetinventory.ui.inventory.InventoryAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class LowStockFragment extends Fragment {
