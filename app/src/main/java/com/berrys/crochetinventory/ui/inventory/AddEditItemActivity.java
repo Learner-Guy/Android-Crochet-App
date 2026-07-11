@@ -12,29 +12,38 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.ArrayList;
+import java.util.Date;
+
+import com.berrys.crochetinventory.data.IconPack;
+import com.berrys.crochetinventory.ui.components.IconPickerDialog;
 import com.bumptech.glide.Glide;
 import com.berrys.crochetinventory.R;
 import com.berrys.crochetinventory.data.AppDatabase;
 import com.berrys.crochetinventory.data.InventoryItem;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-import java.util.Date;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 
 public class AddEditItemActivity extends AppCompatActivity {
-    private static final int PICK_IMAGE_REQUEST = 1;
 
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private ArrayAdapter<String> categoryAdapter;
     private TextInputEditText etName, etColor, etQuantity, etUnit, etCost,
             etSupplier, etLowStock, etNotes;
     private AutoCompleteTextView actCategory;
     private ImageView ivPreview;
     private MaterialButton btnSave, btnSelectImage;
+    private ImageView ivSelectedIcon;
+    private String selectedIconName = IconPack.getDefaultItemIcon();
 
     private AppDatabase db;
     private String imagePath = "";
     private int itemId = -1;
 
-    private final String[] categories = {"Yarn", "Hooks", "Stuffing", "Safety Eyes",
-            "Buttons", "Beads", "Packaging", "Other"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +57,26 @@ public class AddEditItemActivity extends AppCompatActivity {
         db = AppDatabase.getInstance(this);
         initViews();
         setupCategoryDropdown();
+
+
+        // Icon picker
+        ivSelectedIcon = findViewById(R.id.iv_selected_icon);
+        MaterialButton btnPickIcon = findViewById(R.id.btn_pick_icon);
+
+        btnPickIcon.setOnClickListener(v -> {
+            IconPickerDialog dialog = IconPickerDialog.newItemPicker(selectedIconName, iconName -> {
+                selectedIconName = iconName;
+                int resId = IconPack.getIconResourceId(this, iconName);
+                ivSelectedIcon.setImageResource(resId != 0 ? resId : R.drawable.ic_inventory);
+            });
+            dialog.show(getSupportFragmentManager(), "icon_picker");
+        });
+
+        // Pre-selected category from CategoriesFragment
+        String preselectedCategory = getIntent().getStringExtra("preselected_category");
+        if (preselectedCategory != null && !preselectedCategory.isEmpty()) {
+            actCategory.setText(preselectedCategory, false);
+        }
 
         itemId = getIntent().getIntExtra("item_id", -1);
         if (itemId != -1) {
@@ -77,9 +106,18 @@ public class AddEditItemActivity extends AppCompatActivity {
     }
 
     private void setupCategoryDropdown() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line, categories);
-        actCategory.setAdapter(adapter);
+        categoryAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
+        actCategory.setAdapter(categoryAdapter);
+
+        // Load categories from database
+        db.inventoryDao().getCategoryNames().observe(this, names -> {
+            categoryAdapter.clear();
+            if (names != null) {
+                categoryAdapter.addAll(names);
+            }
+            categoryAdapter.notifyDataSetChanged();
+        });
     }
 
     private void pickImage() {
@@ -93,36 +131,74 @@ public class AddEditItemActivity extends AppCompatActivity {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             Uri uri = data.getData();
             if (uri != null) {
-                imagePath = uri.toString();
-                Glide.with(this).load(uri).into(ivPreview);
+                String savedPath = saveImageToInternalStorage(uri);
+                if (savedPath != null) {
+                    imagePath = savedPath;
+                    Glide.with(this).load(new File(imagePath)).into(ivPreview);
+                }
             }
+        }
+    }
+
+    private String saveImageToInternalStorage(Uri sourceUri) {
+        try {
+            File directory = new File(getFilesDir(), "item_images");
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            String fileName = "item_" + System.currentTimeMillis() + ".jpg";
+            File destFile = new File(directory, fileName);
+
+            try (InputStream in = getContentResolver().openInputStream(sourceUri);
+                 FileOutputStream out = new FileOutputStream(destFile)) {
+
+                if (in == null) return null;
+
+                byte[] buffer = new byte[4096];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+            }
+
+            return destFile.getAbsolutePath();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
     private void loadItem(int id) {
         new Thread(() -> {
-            InventoryItem item = db.inventoryDao().getAllItems().getValue() != null ?
-                    db.inventoryDao().getAllItems().getValue().stream()
-                    .filter(i -> i.getId() == id)
-                    .findFirst()
-                    .orElse(null) : null;
+            final InventoryItem item = db.inventoryDao().getItemById(id);
 
             if (item != null) {
-                final InventoryItem finalItem = item;
+                selectedIconName = item.getIconName() != null ? item.getIconName() : IconPack.getDefaultItemIcon();
+
                 runOnUiThread(() -> {
-                    etName.setText(finalItem.getName());
-                    actCategory.setText(finalItem.getCategory(), false);
-                    etColor.setText(finalItem.getColor());
-                    etQuantity.setText(String.valueOf(finalItem.getQuantity()));
-                    etUnit.setText(finalItem.getUnit());
-                    etCost.setText(String.valueOf(finalItem.getCost()));
-                    etSupplier.setText(finalItem.getSupplier());
-                    etLowStock.setText(String.valueOf(finalItem.getLowStock()));
-                    etNotes.setText(finalItem.getNotes());
-                    imagePath = finalItem.getImagePath();
+                    etName.setText(item.getName());
+                    actCategory.setText(item.getCategory(), false);
+                    etColor.setText(item.getColor() != null ? item.getColor() : "");
+                    etQuantity.setText(String.valueOf(item.getQuantity()));
+                    etUnit.setText(item.getUnit() != null ? item.getUnit() : "");
+                    etCost.setText(String.valueOf(item.getCost()));
+                    etSupplier.setText(item.getSupplier() != null ? item.getSupplier() : "");
+                    etLowStock.setText(String.valueOf(item.getLowStock()));
+                    etNotes.setText(item.getNotes() != null ? item.getNotes() : "");
+                    imagePath = item.getImagePath();
+
+                    // Load image preview
                     if (imagePath != null && !imagePath.isEmpty()) {
-                        Glide.with(this).load(imagePath).into(ivPreview);
+                        File imgFile = new File(imagePath);
+                        if (imgFile.exists()) {
+                            Glide.with(AddEditItemActivity.this).load(imgFile).into(ivPreview);
+                        }
                     }
+
+                    // Load icon
+                    int iconRes = IconPack.getIconResourceId(AddEditItemActivity.this, selectedIconName);
+                    ivSelectedIcon.setImageResource(iconRes != 0 ? iconRes : R.drawable.ic_inventory);
                 });
             }
         }).start();
@@ -149,8 +225,10 @@ public class AddEditItemActivity extends AppCompatActivity {
         int lowStock = lowStockStr.isEmpty() ? 5 : Integer.parseInt(lowStockStr);
 
         InventoryItem item = new InventoryItem(
-                name, category, color, quantity, unit.isEmpty() ? "pcs" : unit,
-                cost, supplier, lowStock, notes, imagePath, new Date()
+                name, category, color, quantity,
+                unit.isEmpty() ? "pcs" : unit,
+                cost, supplier, lowStock, notes,
+                imagePath, selectedIconName, new Date()
         );
 
         new Thread(() -> {

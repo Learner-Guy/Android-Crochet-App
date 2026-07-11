@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,14 +17,20 @@
             android:text="Dashboard"
             android:textSize="28sp"
             android:textStyle="bold"
+            android:textColor="@color/text_primary"
             android:layout_marginBottom="24dp" />
 
+        <!-- Total Items Card -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_total_items"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/card_primary"
+            android:clickable="true"
+            android:focusable="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -36,7 +43,7 @@
                     android:layout_height="wrap_content"
                     android:text="Total Items"
                     android:textSize="16sp"
-                    android:textColor="?android:attr/textColorSecondary" />
+                    android:textColor="#B3FFFFFF" />
 
                 <TextView
                     android:id="@+id/tv_total_items"
@@ -45,16 +52,21 @@
                     android:text="0"
                     android:textSize="36sp"
                     android:textStyle="bold"
-                    android:textColor="?attr/colorPrimary" />
+                    android:textColor="@android:color/white" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Low Stock Card -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_low_stock"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/card_alert"
+            android:clickable="true"
+            android:focusable="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -67,7 +79,7 @@
                     android:layout_height="wrap_content"
                     android:text="Low Stock Alerts"
                     android:textSize="16sp"
-                    android:textColor="?android:attr/textColorSecondary" />
+                    android:textColor="#B3FFFFFF" />
 
                 <TextView
                     android:id="@+id/tv_low_stock_count"
@@ -76,15 +88,21 @@
                     android:text="0"
                     android:textSize="36sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/holo_red_dark" />
+                    android:textColor="@android:color/white" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Active Categories Card -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_categories"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+            app:cardElevation="4dp"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/card_accent"
+            android:clickable="true"
+            android:focusable="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -97,7 +115,7 @@
                     android:layout_height="wrap_content"
                     android:text="Active Categories"
                     android:textSize="16sp"
-                    android:textColor="?android:attr/textColorSecondary" />
+                    android:textColor="#B3FFFFFF" />
 
                 <TextView
                     android:id="@+id/tv_categories_count"
@@ -106,16 +124,17 @@
                     android:text="0"
                     android:textSize="36sp"
                     android:textStyle="bold"
-                    android:textColor="?attr/colorPrimary" />
+                    android:textColor="@android:color/white" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Reports Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
-            android:layout_marginTop="16dp">
+            app:cardBackgroundColor="@color/card_primary">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -128,14 +147,15 @@
                     android:layout_height="wrap_content"
                     android:text="Reports"
                     android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Coming Soon"
                     android:textSize="14sp"
-                    android:textColor="?android:attr/textColorSecondary"
+                    android:textColor="#B3FFFFFF"
                     android:layout_marginTop="8dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

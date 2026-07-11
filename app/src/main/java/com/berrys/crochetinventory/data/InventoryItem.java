@@ -20,11 +20,12 @@ public class InventoryItem {
     private int lowStock;
     private String notes;
     private String imagePath;
+    private String iconName;
     private Date createdDate;
 
     public InventoryItem(String name, String category, String color, int quantity,
                          String unit, double cost, String supplier, int lowStock,
-                         String notes, String imagePath, Date createdDate) {
+                         String notes, String imagePath, String iconName, Date createdDate) {
         this.name = name;
         this.category = category;
         this.color = color;
@@ -35,6 +36,7 @@ public class InventoryItem {
         this.lowStock = lowStock;
         this.notes = notes;
         this.imagePath = imagePath;
+        this.iconName = iconName;
         this.createdDate = createdDate;
     }
 
@@ -60,6 +62,8 @@ public class InventoryItem {
     public void setNotes(String notes) { this.notes = notes; }
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+    public String getIconName() { return iconName; }
+    public void setIconName(String iconName) { this.iconName = iconName; }
     public Date getCreatedDate() { return createdDate; }
     public void setCreatedDate(Date createdDate) { this.createdDate = createdDate; }
 }

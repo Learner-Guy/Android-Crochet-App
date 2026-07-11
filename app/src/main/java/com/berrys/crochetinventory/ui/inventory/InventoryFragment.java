@@ -18,6 +18,8 @@ import com.berrys.crochetinventory.R;
 import com.berrys.crochetinventory.data.AppDatabase;
 import com.berrys.crochetinventory.data.InventoryItem;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryFragment extends Fragment {
@@ -26,9 +28,7 @@ public class InventoryFragment extends Fragment {
     private SearchView searchView;
     private Spinner categoryFilter;
     private AppDatabase db;
-
-    private final String[] categories = {"All", "Yarn", "Hooks", "Stuffing", "Safety Eyes",
-            "Buttons", "Beads", "Packaging", "Other"};
+    private ArrayAdapter<String> spinnerAdapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -44,7 +44,10 @@ public class InventoryFragment extends Fragment {
         setupCategoryFilter();
         setupSearch();
 
-        loadAllItems();
+        FloatingActionButton fab = view.findViewById(R.id.fab_add_inventory);
+        fab.setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), AddEditItemActivity.class));
+        });
 
         return view;
     }
@@ -75,8 +78,8 @@ public class InventoryFragment extends Fragment {
     }
 
     private void setupCategoryFilter() {
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item, categories);
+        spinnerAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, new ArrayList<>());
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categoryFilter.setAdapter(spinnerAdapter);
 
@@ -88,23 +91,45 @@ public class InventoryFragment extends Fragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
+
+        db.inventoryDao().getCategoryNames().observe(getViewLifecycleOwner(), names -> {
+            if (!isAdded()) return;
+
+            spinnerAdapter.clear();
+            spinnerAdapter.add("All");
+            if (names != null) {
+                spinnerAdapter.addAll(names);
+            }
+            spinnerAdapter.notifyDataSetChanged();
+
+            // Load all items after categories loaded
+            loadAllItems();
+        });
     }
 
     private void setupSearch() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) { return false; }
+
             @Override
             public boolean onQueryTextChange(String newText) {
-                filterItems();
+                // Only filter if spinner is ready
+                if (categoryFilter.getSelectedItem() != null) {
+                    filterItems();
+                }
                 return true;
             }
         });
     }
 
     private void filterItems() {
-        String category = categoryFilter.getSelectedItem().toString();
-        String query = searchView.getQuery().toString().trim();
+        if (!isAdded() || categoryFilter == null) return;
+
+        Object selectedItem = categoryFilter.getSelectedItem();
+        String category = (selectedItem != null) ? selectedItem.toString() : "All";
+
+        String query = searchView.getQuery() != null ? searchView.getQuery().toString().trim() : "";
 
         LiveData<List<InventoryItem>> data;
 
@@ -116,11 +141,20 @@ public class InventoryFragment extends Fragment {
             data = db.inventoryDao().getAllItems();
         }
 
-        data.observe(getViewLifecycleOwner(), items -> adapter.submitList(items));
+        data.observe(getViewLifecycleOwner(), items -> {
+            if (isAdded() && adapter != null) {
+                adapter.submitList(items != null ? items : new ArrayList<>());
+            }
+        });
     }
 
     private void loadAllItems() {
-        db.inventoryDao().getAllItems().observe(getViewLifecycleOwner(),
-                items -> adapter.submitList(items));
+        if (!isAdded()) return;
+
+        db.inventoryDao().getAllItems().observe(getViewLifecycleOwner(), items -> {
+            if (isAdded() && adapter != null) {
+                adapter.submitList(items != null ? items : new ArrayList<>());
+            }
+        });
     }
 }

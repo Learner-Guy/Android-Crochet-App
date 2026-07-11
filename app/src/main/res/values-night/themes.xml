@@ -1,16 +1,11 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.CrochetInventory" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/black</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
-    </style>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#E8A87C</color>
+    <color name="primary_dark">#C75B39</color>
+    <color name="accent">#D4A574</color>
+    <color name="surface">#2D2420</color>
+    <color name="background">#1A1512</color>
+    <color name="text_primary">#F5F0E8</color>
+    <color name="text_secondary">#B0A69A</color>
+    <color name="error">#FF8A80</color>
 </resources>

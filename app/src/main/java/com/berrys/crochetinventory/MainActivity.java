@@ -27,10 +27,10 @@ public class MainActivity extends AppCompatActivity {
             NavigationUI.setupWithNavController(bottomNav, navController);
         }
 
-        FloatingActionButton fab = findViewById(R.id.fab_add);
-        fab.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, AddEditItemActivity.class);
-            startActivity(intent);
-        });
+//        FloatingActionButton fab = findViewById(R.id.fab_add);
+//        fab.setOnClickListener(v -> {
+//            Intent intent = new Intent(MainActivity.this, AddEditItemActivity.class);
+//            startActivity(intent);
+//        });
     }
 }

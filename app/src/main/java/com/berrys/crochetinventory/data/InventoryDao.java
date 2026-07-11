@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 import java.util.List;
@@ -39,4 +40,23 @@ public interface InventoryDao {
 
     @Query("SELECT DISTINCT category FROM inventory")
     LiveData<List<String>> getAllCategories();
+
+    // Category management
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertCategory(Category category);
+
+    @Delete
+    void deleteCategory(Category category);
+
+    @Query("SELECT * FROM categories ORDER BY name ASC")
+    LiveData<List<Category>> getAllCategoriesList();
+
+    @Query("SELECT name FROM categories ORDER BY name ASC")
+    LiveData<List<String>> getCategoryNames();
+
+    @Query("SELECT COUNT(*) FROM inventory WHERE category = :categoryName")
+    int getItemCountForCategory(String categoryName);
+
+    @Query("SELECT * FROM inventory WHERE id = :itemId LIMIT 1")
+    InventoryItem getItemById(int itemId);
 }
