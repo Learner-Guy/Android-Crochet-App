@@ -19,24 +19,20 @@ public class IconPickerDialog extends DialogFragment {
         void onIconSelected(String iconName);
     }
 
-    private IconPickerListener listener;
-    private String[] iconSet;
+    private String[] iconSet = IconPack.CATEGORY_ICONS;
     private String currentSelection;
+    private IconPickerListener listener;
 
-    public static IconPickerDialog newCategoryPicker(@Nullable String currentIcon, IconPickerListener listener) {
-        IconPickerDialog dialog = new IconPickerDialog();
-        dialog.iconSet = IconPack.CATEGORY_ICONS;
-        dialog.currentSelection = currentIcon;
-        dialog.listener = listener;
-        return dialog;
+    public void setIcons(String[] icons) {
+        this.iconSet = icons;
     }
 
-    public static IconPickerDialog newItemPicker(@Nullable String currentIcon, IconPickerListener listener) {
-        IconPickerDialog dialog = new IconPickerDialog();
-        dialog.iconSet = IconPack.ITEM_ICONS;
-        dialog.currentSelection = currentIcon;
-        dialog.listener = listener;
-        return dialog;
+    public void setCurrentIcon(String icon) {
+        this.currentSelection = icon;
+    }
+
+    public void setListener(IconPickerListener listener) {
+        this.listener = listener;
     }
 
     @NonNull
@@ -50,9 +46,8 @@ public class IconPickerDialog extends DialogFragment {
             int resId = IconPack.getIconResourceId(requireContext(), iconName);
 
             iconView.setImageResource(resId != 0 ? resId : R.drawable.ic_inventory);
-            iconView.setPadding(16, 16, 16, 16);
+            iconView.setPadding(24, 24, 24, 24);
 
-            // Highlight current selection
             if (iconName.equals(currentSelection)) {
                 iconView.setBackgroundResource(R.drawable.bg_icon_selected);
             } else {
@@ -63,14 +58,15 @@ public class IconPickerDialog extends DialogFragment {
             params.width = 0;
             params.height = GridLayout.LayoutParams.WRAP_CONTENT;
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-            params.setMargins(8, 8, 8, 8);
+            params.setMargins(12, 12, 12, 12);
             iconView.setLayoutParams(params);
 
             iconView.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onIconSelected(iconName);
                 }
-                dismiss();
+                // Delay dismiss to ensure callback fires first
+                v.post(() -> dismiss());
             });
 
             grid.addView(iconView);

@@ -59,4 +59,7 @@ public interface InventoryDao {
 
     @Query("SELECT * FROM inventory WHERE id = :itemId LIMIT 1")
     InventoryItem getItemById(int itemId);
+
+    @Update
+    void updateCategory(Category category);
 }

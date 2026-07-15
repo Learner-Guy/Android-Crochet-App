@@ -64,12 +64,21 @@ public class AddEditItemActivity extends AppCompatActivity {
         MaterialButton btnPickIcon = findViewById(R.id.btn_pick_icon);
 
         btnPickIcon.setOnClickListener(v -> {
-            IconPickerDialog dialog = IconPickerDialog.newItemPicker(selectedIconName, iconName -> {
+//            IconPickerDialog dialog = IconPickerDialog.newItemPicker(selectedIconName, iconName -> {
+//                selectedIconName = iconName;
+//                int resId = IconPack.getIconResourceId(this, iconName);
+//                ivSelectedIcon.setImageResource(resId != 0 ? resId : R.drawable.ic_inventory);
+//            });
+//            dialog.show(getSupportFragmentManager(), "icon_picker");
+            IconPickerDialog dialog = new IconPickerDialog();
+            dialog.setIcons(IconPack.ITEM_ICONS);
+            dialog.setCurrentIcon(selectedIconName);
+            dialog.setListener(iconName -> {
                 selectedIconName = iconName;
                 int resId = IconPack.getIconResourceId(this, iconName);
                 ivSelectedIcon.setImageResource(resId != 0 ? resId : R.drawable.ic_inventory);
             });
-            dialog.show(getSupportFragmentManager(), "icon_picker");
+            dialog.show(getSupportFragmentManager(), "item_icon_picker");
         });
 
         // Pre-selected category from CategoriesFragment
