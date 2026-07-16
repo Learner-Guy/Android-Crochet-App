@@ -19,6 +19,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import java.io.File;
 import java.text.NumberFormat;
+import java.util.Objects;
 
 public class InventoryAdapter extends ListAdapter<InventoryItem, InventoryAdapter.ViewHolder> {
 
@@ -37,7 +38,9 @@ public class InventoryAdapter extends ListAdapter<InventoryItem, InventoryAdapte
             }
             @Override
             public boolean areContentsTheSame(@NonNull InventoryItem old, @NonNull InventoryItem next) {
-                return old.getName().equals(next.getName()) && old.getQuantity() == next.getQuantity();
+                return old.getName().equals(next.getName())
+                        && old.getQuantity() == next.getQuantity()
+                        && Objects.equals(old.getIconName(), next.getIconName());
             }
         });
         this.listener = listener;

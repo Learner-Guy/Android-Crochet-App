@@ -5,9 +5,13 @@
    Note: This file is ignored for devices older than API 31
    See https://developer.android.com/about/versions/12/backup-restore
 -->
+
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Include Room database files -->
+    <include domain="database" path="crochet_inventory_db"/>
+    <include domain="database" path="crochet_inventory_db-shm"/>
+    <include domain="database" path="crochet_inventory_db-wal"/>
+
+    <!-- Include saved item images -->
+    <include domain="file" path="item_images/"/>
 </full-backup-content>

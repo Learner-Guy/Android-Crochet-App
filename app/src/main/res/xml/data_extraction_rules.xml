@@ -3,17 +3,22 @@
    See https://developer.android.com/about/versions/12/backup-restore#xml-changes
    for details.
 -->
+
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <!-- Room database -->
+        <include domain="database" path="crochet_inventory_db"/>
+        <include domain="database" path="crochet_inventory_db-shm"/>
+        <include domain="database" path="crochet_inventory_db-wal"/>
+
+        <!-- Saved images -->
+        <include domain="file" path="item_images/"/>
     </cloud-backup>
-    <!--
+
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <include domain="database" path="crochet_inventory_db"/>
+        <include domain="database" path="crochet_inventory_db-shm"/>
+        <include domain="database" path="crochet_inventory_db-wal"/>
+        <include domain="file" path="item_images/"/>
     </device-transfer>
-    -->
 </data-extraction-rules>
