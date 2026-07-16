@@ -156,14 +156,31 @@
             android:scaleType="centerCrop"
             android:src="@drawable/ic_inventory" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_select_image"
-            android:layout_width="wrap_content"
+        <!-- Image Buttons - Horizontal layout -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:text="Select Image"
-            style="@style/Widget.Material3.Button.OutlinedButton" />
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_select_image"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Select Image"
+                style="@style/Widget.Material3.Button.OutlinedButton" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_remove_image"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="Remove Image"
+                android:visibility="gone"
+                style="@style/Widget.Material3.Button.OutlinedButton" />
+        </LinearLayout>
 
         <!-- Icon Picker -->
         <LinearLayout

@@ -60,6 +60,8 @@ public class InventoryAdapter extends ListAdapter<InventoryItem, InventoryAdapte
         holder.bind(item);
     }
 
+
+
     class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvName, tvCategory, tvSummary;
         private final TextView tvDetailColor, tvDetailQty, tvDetailCost, tvDetailSupplier, tvDetailLowStock, tvDetailNotes;
@@ -87,6 +89,17 @@ public class InventoryAdapter extends ListAdapter<InventoryItem, InventoryAdapte
             tvDetailNotes = itemView.findViewById(R.id.tv_detail_notes);
         }
 
+        private void loadIcon(InventoryItem item, ImageView ivItem) {
+            String iconName = item.getIconName();
+            if (iconName != null && !iconName.isEmpty()) {
+                int iconRes = IconPack.getIconResourceId(ivItem.getContext(), iconName);
+                ivItem.setImageResource(iconRes != 0 ? iconRes : R.drawable.ic_inventory);
+            } else {
+                ivItem.setImageResource(R.drawable.ic_inventory);
+            }
+        }
+
+
         void bind(InventoryItem item) {
             tvName.setText(item.getName());
             tvCategory.setText(item.getCategory());
@@ -102,22 +115,23 @@ public class InventoryAdapter extends ListAdapter<InventoryItem, InventoryAdapte
             } else {
                 cardView.setStrokeWidth(0);
             }
-
-            // Image and icon loading
-            String iconName = item.getIconName();
-            if (iconName != null && !iconName.isEmpty()) {
-                int iconRes = IconPack.getIconResourceId(ivItem.getContext(), iconName);
-                ivItem.setImageResource(iconRes != 0 ? iconRes : R.drawable.ic_inventory);
-            } else if (item.getImagePath() != null && !item.getImagePath().isEmpty()) {
-                File imgFile = new File(item.getImagePath());
+            // Image takes priority over icon
+            String imagePath = item.getImagePath();
+            if (imagePath != null && !imagePath.isEmpty()) {
+                File imgFile = new File(imagePath);
                 if (imgFile.exists()) {
                     Glide.with(ivItem.getContext()).load(imgFile).into(ivItem);
                 } else {
-                    ivItem.setImageResource(R.drawable.ic_inventory);
+                    // Image file missing, fall back to icon
+                    loadIcon(item, ivItem);
                 }
             } else {
-                ivItem.setImageResource(R.drawable.ic_inventory);
+                // No image, use icon
+                loadIcon(item, ivItem);
             }
+
+            // Image and icon loading
+
 
             // Expandable details
             tvDetailColor.setText("Color: " + color);

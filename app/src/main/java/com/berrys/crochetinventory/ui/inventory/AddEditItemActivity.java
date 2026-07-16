@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
@@ -36,12 +37,13 @@ public class AddEditItemActivity extends AppCompatActivity {
             etSupplier, etLowStock, etNotes;
     private AutoCompleteTextView actCategory;
     private ImageView ivPreview;
-    private MaterialButton btnSave, btnSelectImage;
+    private MaterialButton btnSave, btnSelectImage, btnRemoveImage;
     private ImageView ivSelectedIcon;
     private String selectedIconName = IconPack.getDefaultItemIcon();
 
     private AppDatabase db;
     private String imagePath = "";
+    private String oldImagePath = "";
     private int itemId = -1;
 
 
@@ -58,18 +60,11 @@ public class AddEditItemActivity extends AppCompatActivity {
         initViews();
         setupCategoryDropdown();
 
-
         // Icon picker
         ivSelectedIcon = findViewById(R.id.iv_selected_icon);
         MaterialButton btnPickIcon = findViewById(R.id.btn_pick_icon);
 
         btnPickIcon.setOnClickListener(v -> {
-//            IconPickerDialog dialog = IconPickerDialog.newItemPicker(selectedIconName, iconName -> {
-//                selectedIconName = iconName;
-//                int resId = IconPack.getIconResourceId(this, iconName);
-//                ivSelectedIcon.setImageResource(resId != 0 ? resId : R.drawable.ic_inventory);
-//            });
-//            dialog.show(getSupportFragmentManager(), "icon_picker");
             IconPickerDialog dialog = new IconPickerDialog();
             dialog.setIcons(IconPack.ITEM_ICONS);
             dialog.setCurrentIcon(selectedIconName);
@@ -96,6 +91,7 @@ public class AddEditItemActivity extends AppCompatActivity {
         }
 
         btnSelectImage.setOnClickListener(v -> pickImage());
+        btnRemoveImage.setOnClickListener(v -> removeImage());
         btnSave.setOnClickListener(v -> saveItem());
     }
 
@@ -112,6 +108,7 @@ public class AddEditItemActivity extends AppCompatActivity {
         ivPreview = findViewById(R.id.iv_preview);
         btnSave = findViewById(R.id.btn_save);
         btnSelectImage = findViewById(R.id.btn_select_image);
+        btnRemoveImage = findViewById(R.id.btn_remove_image);
     }
 
     private void setupCategoryDropdown() {
@@ -134,6 +131,17 @@ public class AddEditItemActivity extends AppCompatActivity {
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
+    private void removeImage() {
+        // Mark old image for deletion on save
+        if (imagePath != null && !imagePath.isEmpty()) {
+            oldImagePath = imagePath;
+        }
+        imagePath = "";
+        ivPreview.setImageResource(R.drawable.ic_inventory);
+        btnRemoveImage.setVisibility(View.GONE);
+        btnSelectImage.setText("Select Image");
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -142,8 +150,14 @@ public class AddEditItemActivity extends AppCompatActivity {
             if (uri != null) {
                 String savedPath = saveImageToInternalStorage(uri);
                 if (savedPath != null) {
+                    // Delete previous image if it exists and is different
+                    if (imagePath != null && !imagePath.isEmpty() && !imagePath.equals(savedPath)) {
+                        deleteImageFile(imagePath);
+                    }
                     imagePath = savedPath;
                     Glide.with(this).load(new File(imagePath)).into(ivPreview);
+                    btnRemoveImage.setVisibility(View.VISIBLE);
+                    btnSelectImage.setText("Change Image");
                 }
             }
         }
@@ -178,12 +192,23 @@ public class AddEditItemActivity extends AppCompatActivity {
         }
     }
 
+    private void deleteImageFile(String path) {
+        if (path != null && !path.isEmpty()) {
+            File file = new File(path);
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+    }
+
     private void loadItem(int id) {
         new Thread(() -> {
             final InventoryItem item = db.inventoryDao().getItemById(id);
 
             if (item != null) {
                 selectedIconName = item.getIconName() != null ? item.getIconName() : IconPack.getDefaultItemIcon();
+                imagePath = item.getImagePath() != null ? item.getImagePath() : "";
+                oldImagePath = imagePath;
 
                 runOnUiThread(() -> {
                     etName.setText(item.getName());
@@ -195,14 +220,22 @@ public class AddEditItemActivity extends AppCompatActivity {
                     etSupplier.setText(item.getSupplier() != null ? item.getSupplier() : "");
                     etLowStock.setText(String.valueOf(item.getLowStock()));
                     etNotes.setText(item.getNotes() != null ? item.getNotes() : "");
-                    imagePath = item.getImagePath();
 
                     // Load image preview
                     if (imagePath != null && !imagePath.isEmpty()) {
                         File imgFile = new File(imagePath);
                         if (imgFile.exists()) {
                             Glide.with(AddEditItemActivity.this).load(imgFile).into(ivPreview);
+                            btnRemoveImage.setVisibility(View.VISIBLE);
+                            btnSelectImage.setText("Change Image");
+                        } else {
+                            imagePath = "";
+                            btnRemoveImage.setVisibility(View.GONE);
+                            btnSelectImage.setText("Select Image");
                         }
+                    } else {
+                        btnRemoveImage.setVisibility(View.GONE);
+                        btnSelectImage.setText("Select Image");
                     }
 
                     // Load icon
@@ -244,6 +277,12 @@ public class AddEditItemActivity extends AppCompatActivity {
             if (itemId != -1) {
                 item.setId(itemId);
                 db.inventoryDao().update(item);
+
+                // Delete old image if it was removed
+                if (oldImagePath != null && !oldImagePath.isEmpty() &&
+                        (imagePath == null || imagePath.isEmpty() || !imagePath.equals(oldImagePath))) {
+                    deleteImageFile(oldImagePath);
+                }
             } else {
                 db.inventoryDao().insert(item);
             }
