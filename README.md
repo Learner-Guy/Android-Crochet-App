@@ -198,10 +198,12 @@ CrochetInventory.apk
 
 ## License
 
-This project is intended for learning and personal/business use. Update this section with your preferred license before public release.
+This project is intended for learning and personal/business use.
 
 ---
 
 ## Author
 
-Developed as an Android inventory management application for crochet businesses.
+Developed as an Android inventory management application for crochet businesses. 
+
+Crochet business management system by rishi.
