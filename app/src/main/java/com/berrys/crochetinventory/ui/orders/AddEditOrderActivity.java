@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.berrys.crochetinventory.R;
 import com.berrys.crochetinventory.data.AppDatabase;
-import com.berrys.crochetinventory.data.InventoryItem;
 import com.berrys.crochetinventory.data.Order;
 import com.berrys.crochetinventory.data.OrderItem;
 import com.berrys.crochetinventory.data.OrderStatus;
@@ -41,7 +40,7 @@ public class AddEditOrderActivity extends AppCompatActivity {
             etNotes;
     private AutoCompleteTextView actStatus;
     private ImageView ivSampleImage;
-    private MaterialButton btnSelectImage, btnRemoveImage, btnSave, btnPickDate;
+    private MaterialButton btnSelectImage, btnRemoveImage, btnSave, btnPickDate, btnAddItem;
     private TextInputEditText etDeliveryDate;
 
     private AppDatabase db;
@@ -82,6 +81,7 @@ public class AddEditOrderActivity extends AppCompatActivity {
         btnSelectImage.setOnClickListener(v -> pickImage());
         btnRemoveImage.setOnClickListener(v -> removeImage());
         btnPickDate.setOnClickListener(v -> showDatePicker());
+        btnAddItem.setOnClickListener(v -> showAddItemDialog());
         btnSave.setOnClickListener(v -> saveOrder());
     }
 
@@ -102,6 +102,7 @@ public class AddEditOrderActivity extends AppCompatActivity {
         btnPickDate = findViewById(R.id.btn_pick_date);
         etDeliveryDate = findViewById(R.id.et_delivery_date);
         rvOrderItems = findViewById(R.id.rv_order_items);
+        btnAddItem = findViewById(R.id.btn_add_item);
     }
 
     private void setupStatusDropdown() {
@@ -117,8 +118,31 @@ public class AddEditOrderActivity extends AppCompatActivity {
 
     private void setupOrderItemsRecycler() {
         rvOrderItems.setLayoutManager(new LinearLayoutManager(this));
-        orderItemAdapter = new OrderItemAdapter(orderItems, db);
+        orderItemAdapter = new OrderItemAdapter(orderItems);
         rvOrderItems.setAdapter(orderItemAdapter);
+    }
+
+    private void showAddItemDialog() {
+        AddOrderItemDialog dialog = new AddOrderItemDialog();
+        dialog.setDatabase(db);
+        dialog.setListener((itemName, quantity, unitPrice) -> {
+            OrderItem item = new OrderItem(-1, -1, itemName, quantity, unitPrice, "");
+            orderItems.add(item);
+            orderItemAdapter.notifyDataSetChanged();
+            calculateTotals();
+        });
+        dialog.show(getSupportFragmentManager(), "add_order_item");
+    }
+
+    private void calculateTotals() {
+        double itemsTotal = 0;
+        for (OrderItem item : orderItems) {
+            itemsTotal += item.getTotalAmount();
+        }
+        // Update estimated price if items were added
+        if (itemsTotal > 0) {
+            etEstimatedPrice.setText(String.valueOf(itemsTotal));
+        }
     }
 
     private void showDatePicker() {
@@ -237,7 +261,6 @@ public class AddEditOrderActivity extends AppCompatActivity {
                     }
                 });
 
-                // Load order items
                 List<OrderItem> items = db.orderDao().getOrderItemsSync(id);
                 runOnUiThread(() -> {
                     orderItems.clear();
@@ -267,7 +290,6 @@ public class AddEditOrderActivity extends AppCompatActivity {
         double discountPercent = discountStr.isEmpty() ? 0 : Double.parseDouble(discountStr);
         double gstPercent = gstStr.isEmpty() ? 0 : Double.parseDouble(gstStr);
 
-        // Calculate amounts
         double discountAmount = estimatedPrice * discountPercent / 100;
         double effectivePrice = estimatedPrice - discountAmount;
         double taxAmount = effectivePrice * gstPercent / 100;
@@ -305,20 +327,15 @@ public class AddEditOrderActivity extends AppCompatActivity {
                 order.setId(orderId);
                 db.orderDao().update(order);
                 newOrderId = orderId;
-
-                // Delete old image if removed
                 if (oldImagePath != null && !oldImagePath.isEmpty() &&
-                        (sampleImagePath == null || sampleImagePath.isEmpty() || !sampleImagePath.equals(oldImagePath))) {
+                    (sampleImagePath == null || sampleImagePath.isEmpty() || !sampleImagePath.equals(oldImagePath))) {
                     deleteImageFile(oldImagePath);
                 }
-
-                // Delete old order items and re-insert
                 db.orderDao().deleteOrderItemsByOrderId(orderId);
             } else {
                 newOrderId = db.orderDao().insert(order);
             }
 
-            // Save order items
             for (OrderItem item : orderItems) {
                 item.setOrderId((int) newOrderId);
                 db.orderDao().insertOrderItem(item);

@@ -7,17 +7,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.berrys.crochetinventory.R;
-import com.berrys.crochetinventory.data.AppDatabase;
 import com.berrys.crochetinventory.data.OrderItem;
 import java.util.List;
 
 public class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.ViewHolder> {
     private final List<OrderItem> items;
-    private final AppDatabase db;
 
-    public OrderItemAdapter(List<OrderItem> items, AppDatabase db) {
+    public OrderItemAdapter(List<OrderItem> items) {
         this.items = items;
-        this.db = db;
     }
 
     @NonNull
@@ -34,7 +31,7 @@ public class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.View
         holder.tvName.setText(item.getCustomItemName());
         holder.tvQty.setText("Qty: " + item.getQuantityUsed());
         holder.tvPrice.setText("₹" + item.getUnitPrice() + " each");
-        holder.tvTotal.setText("₹" + item.getTotalAmount());
+        holder.tvTotal.setText("₹" + String.format("%.2f", item.getTotalAmount()));
     }
 
     @Override
