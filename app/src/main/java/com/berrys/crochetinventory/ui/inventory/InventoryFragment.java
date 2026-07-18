@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.berrys.crochetinventory.R;
@@ -29,6 +30,10 @@ public class InventoryFragment extends Fragment {
     private Spinner categoryFilter;
     private AppDatabase db;
     private ArrayAdapter<String> spinnerAdapter;
+
+    // Track current observer to remove old ones
+    private LiveData<List<InventoryItem>> currentLiveData;
+    private Observer<List<InventoryItem>> itemObserver;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -50,6 +55,13 @@ public class InventoryFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Force refresh when returning from AddEditItemActivity
+        filterItems();
     }
 
     private void setupRecyclerView() {
@@ -103,7 +115,7 @@ public class InventoryFragment extends Fragment {
             spinnerAdapter.notifyDataSetChanged();
 
             // Load all items after categories loaded
-            loadAllItems();
+            filterItems();
         });
     }
 
@@ -124,37 +136,31 @@ public class InventoryFragment extends Fragment {
     }
 
     private void filterItems() {
-        if (!isAdded() || categoryFilter == null) return;
+        if (!isAdded() || categoryFilter == null || adapter == null) return;
+
+        // Remove old observer to prevent duplicates
+        if (currentLiveData != null && itemObserver != null) {
+            currentLiveData.removeObserver(itemObserver);
+        }
 
         Object selectedItem = categoryFilter.getSelectedItem();
         String category = (selectedItem != null) ? selectedItem.toString() : "All";
-
         String query = searchView.getQuery() != null ? searchView.getQuery().toString().trim() : "";
 
-        LiveData<List<InventoryItem>> data;
-
         if (!query.isEmpty()) {
-            data = db.inventoryDao().searchItems(query);
+            currentLiveData = db.inventoryDao().searchItems(query);
         } else if (!category.equals("All")) {
-            data = db.inventoryDao().getItemsByCategory(category);
+            currentLiveData = db.inventoryDao().getItemsByCategory(category);
         } else {
-            data = db.inventoryDao().getAllItems();
+            currentLiveData = db.inventoryDao().getAllItems();
         }
 
-        data.observe(getViewLifecycleOwner(), items -> {
+        itemObserver = items -> {
             if (isAdded() && adapter != null) {
                 adapter.submitList(items != null ? items : new ArrayList<>());
             }
-        });
-    }
+        };
 
-    private void loadAllItems() {
-        if (!isAdded()) return;
-
-        db.inventoryDao().getAllItems().observe(getViewLifecycleOwner(), items -> {
-            if (isAdded() && adapter != null) {
-                adapter.submitList(items != null ? items : new ArrayList<>());
-            }
-        });
+        currentLiveData.observe(getViewLifecycleOwner(), itemObserver);
     }
 }
