@@ -40,7 +40,8 @@ public class InventoryAdapter extends ListAdapter<InventoryItem, InventoryAdapte
             public boolean areContentsTheSame(@NonNull InventoryItem old, @NonNull InventoryItem next) {
                 return old.getName().equals(next.getName())
                         && old.getQuantity() == next.getQuantity()
-                        && Objects.equals(old.getIconName(), next.getIconName());
+                        && Objects.equals(old.getIconName(), next.getIconName())
+                        && Objects.equals(old.getImagePath(), next.getImagePath());
             }
         });
         this.listener = listener;
