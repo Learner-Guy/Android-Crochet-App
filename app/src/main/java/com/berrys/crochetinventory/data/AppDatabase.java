@@ -8,12 +8,13 @@ import androidx.room.TypeConverters;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {InventoryItem.class, Category.class}, version = 3, exportSchema = false)
+@Database(entities = {InventoryItem.class, Category.class, Order.class, OrderItem.class, BusinessProfile.class}, version = 4, exportSchema = false)
 @TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase {
     private static volatile AppDatabase instance;
 
     public abstract InventoryDao inventoryDao();
+    public abstract OrderDao orderDao();
 
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
@@ -32,6 +33,68 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // Create orders table
+            database.execSQL("CREATE TABLE orders (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "customerName TEXT, " +
+                    "customerPhone TEXT, " +
+                    "customerEmail TEXT, " +
+                    "description TEXT, " +
+                    "estimatedPrice REAL NOT NULL DEFAULT 0, " +
+                    "finalPrice REAL NOT NULL DEFAULT 0, " +
+                    "discountPercent REAL NOT NULL DEFAULT 0, " +
+                    "discountAmount REAL NOT NULL DEFAULT 0, " +
+                    "effectivePrice REAL NOT NULL DEFAULT 0, " +
+                    "isGstApplicable INTEGER NOT NULL DEFAULT 0, " +
+                    "gstPercent REAL NOT NULL DEFAULT 0, " +
+                    "taxAmount REAL NOT NULL DEFAULT 0, " +
+                    "grandTotal REAL NOT NULL DEFAULT 0, " +
+                    "status TEXT, " +
+                    "sampleImagePath TEXT, " +
+                    "orderDate INTEGER, " +
+                    "deliveryDate INTEGER, " +
+                    "completedDate INTEGER, " +
+                    "cancellationReason TEXT, " +
+                    "cancelledDate INTEGER, " +
+                    "notes TEXT, " +
+                    "isEstimateGenerated INTEGER NOT NULL DEFAULT 0, " +
+                    "isFinalBillGenerated INTEGER NOT NULL DEFAULT 0, " +
+                    "estimateBillPath TEXT, " +
+                    "finalBillPath TEXT)");
+
+            // Create order_items table
+            database.execSQL("CREATE TABLE order_items (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "orderId INTEGER NOT NULL, " +
+                    "inventoryItemId INTEGER NOT NULL DEFAULT -1, " +
+                    "customItemName TEXT, " +
+                    "quantityUsed INTEGER NOT NULL DEFAULT 0, " +
+                    "unitPrice REAL NOT NULL DEFAULT 0, " +
+                    "totalAmount REAL NOT NULL DEFAULT 0, " +
+                    "notes TEXT, " +
+                    "FOREIGN KEY(orderId) REFERENCES orders(id) ON DELETE CASCADE)");
+
+            database.execSQL("CREATE INDEX index_order_items_orderId ON order_items(orderId)");
+
+            // Create business_profile table
+            database.execSQL("CREATE TABLE business_profile (" +
+                    "id INTEGER PRIMARY KEY NOT NULL, " +
+                    "businessName TEXT, " +
+                    "address TEXT, " +
+                    "phone TEXT, " +
+                    "email TEXT, " +
+                    "gstNumber TEXT, " +
+                    "logoPath TEXT, " +
+                    "termsAndConditions TEXT, " +
+                    "billPrefix TEXT, " +
+                    "lastBillNumber INTEGER NOT NULL DEFAULT 0, " +
+                    "upiId TEXT)");
+        }
+    };
+
     public static synchronized AppDatabase getInstance(Context context) {
         if (instance == null) {
             synchronized (AppDatabase.class) {
@@ -41,7 +104,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                     AppDatabase.class,
                                     "crochet_inventory_db"
                             )
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                             .fallbackToDestructiveMigration()
                             .build();
                 }

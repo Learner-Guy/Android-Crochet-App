@@ -8,6 +8,12 @@
         android:id="@+id/nav_inventory"
         android:icon="@drawable/ic_inventory"
         android:title="Inventory" />
+
+    <item
+        android:id="@+id/nav_orders"
+        android:icon="@drawable/ic_box"
+        android:title="Orders" />
+
     <item
         android:id="@+id/nav_categories"
         android:icon="@drawable/ic_category"
@@ -16,4 +22,6 @@
         android:id="@+id/nav_low_stock"
         android:icon="@drawable/ic_warning"
         android:title="Low Stock" />
+
+
 </menu>
