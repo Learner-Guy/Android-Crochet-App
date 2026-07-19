@@ -4,20 +4,22 @@
         android:id="@+id/nav_dashboard"
         android:icon="@drawable/ic_dashboard"
         android:title="Dashboard" />
-    <item
-        android:id="@+id/nav_inventory"
-        android:icon="@drawable/ic_inventory"
-        android:title="Inventory" />
 
     <item
         android:id="@+id/nav_orders"
-        android:icon="@drawable/ic_box"
+        android:icon="@drawable/ic_shopping_bag"
         android:title="Orders" />
 
     <item
         android:id="@+id/nav_categories"
         android:icon="@drawable/ic_category"
         android:title="Categories" />
+
+    <item
+        android:id="@+id/nav_inventory"
+        android:icon="@drawable/ic_inventory"
+        android:title="Inventory" />
+
     <item
         android:id="@+id/nav_low_stock"
         android:icon="@drawable/ic_warning"

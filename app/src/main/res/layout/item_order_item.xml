@@ -9,7 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="12dp"
+        android:gravity="center_vertical">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -43,6 +44,14 @@
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textSize="16sp"
-            android:gravity="end|center_vertical" />
+            android:layout_marginEnd="12dp" />
+
+        <ImageView
+            android:id="@+id/btn_delete_item"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_add"
+            android:rotation="45"
+            android:contentDescription="Delete item" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.berrys.crochetinventory.R;
 import com.berrys.crochetinventory.data.AppDatabase;
+import com.berrys.crochetinventory.data.InventoryItem;
 import com.berrys.crochetinventory.data.Order;
 import com.berrys.crochetinventory.data.OrderItem;
 import com.berrys.crochetinventory.data.OrderStatus;
@@ -40,7 +41,7 @@ public class AddEditOrderActivity extends AppCompatActivity {
             etNotes;
     private AutoCompleteTextView actStatus;
     private ImageView ivSampleImage;
-    private MaterialButton btnSelectImage, btnRemoveImage, btnSave, btnPickDate, btnAddItem;
+    private MaterialButton btnSelectImage, btnRemoveImage, btnSave, btnPickDate, btnAddItem, btnCancel;
     private TextInputEditText etDeliveryDate;
 
     private AppDatabase db;
@@ -49,7 +50,6 @@ public class AddEditOrderActivity extends AppCompatActivity {
     private int orderId = -1;
     private Date deliveryDate;
 
-    // Order items
     private RecyclerView rvOrderItems;
     private OrderItemAdapter orderItemAdapter;
     private List<OrderItem> orderItems = new ArrayList<>();
@@ -83,6 +83,7 @@ public class AddEditOrderActivity extends AppCompatActivity {
         btnPickDate.setOnClickListener(v -> showDatePicker());
         btnAddItem.setOnClickListener(v -> showAddItemDialog());
         btnSave.setOnClickListener(v -> saveOrder());
+        btnCancel.setOnClickListener(v -> finish());
     }
 
     private void initViews() {
@@ -103,6 +104,7 @@ public class AddEditOrderActivity extends AppCompatActivity {
         etDeliveryDate = findViewById(R.id.et_delivery_date);
         rvOrderItems = findViewById(R.id.rv_order_items);
         btnAddItem = findViewById(R.id.btn_add_item);
+        btnCancel = findViewById(R.id.btn_cancel_order);
     }
 
     private void setupStatusDropdown() {
@@ -118,31 +120,31 @@ public class AddEditOrderActivity extends AppCompatActivity {
 
     private void setupOrderItemsRecycler() {
         rvOrderItems.setLayoutManager(new LinearLayoutManager(this));
-        orderItemAdapter = new OrderItemAdapter(orderItems);
+        orderItemAdapter = new OrderItemAdapter(orderItems, position -> {
+            orderItems.remove(position);
+            orderItemAdapter.notifyDataSetChanged();
+        });
         rvOrderItems.setAdapter(orderItemAdapter);
     }
 
     private void showAddItemDialog() {
         AddOrderItemDialog dialog = new AddOrderItemDialog();
         dialog.setDatabase(db);
-        dialog.setListener((itemName, quantity, unitPrice) -> {
-            OrderItem item = new OrderItem(-1, -1, itemName, quantity, unitPrice, "");
+        dialog.setListener((inventoryItem, quantity, sizeUsed) -> {
+            OrderItem item = new OrderItem(
+                -1,
+                inventoryItem.getId(),
+                inventoryItem.getName(),
+                quantity,
+                inventoryItem.getCost(),
+                ""
+            );
+            item.setSizeUsed(sizeUsed);
+            item.setSizeUnit(inventoryItem.getSizeUnit());
             orderItems.add(item);
             orderItemAdapter.notifyDataSetChanged();
-            calculateTotals();
         });
         dialog.show(getSupportFragmentManager(), "add_order_item");
-    }
-
-    private void calculateTotals() {
-        double itemsTotal = 0;
-        for (OrderItem item : orderItems) {
-            itemsTotal += item.getTotalAmount();
-        }
-        // Update estimated price if items were added
-        if (itemsTotal > 0) {
-            etEstimatedPrice.setText(String.valueOf(itemsTotal));
-        }
     }
 
     private void showDatePicker() {
@@ -336,9 +338,30 @@ public class AddEditOrderActivity extends AppCompatActivity {
                 newOrderId = db.orderDao().insert(order);
             }
 
+            // Save order items and deduct inventory
             for (OrderItem item : orderItems) {
                 item.setOrderId((int) newOrderId);
                 db.orderDao().insertOrderItem(item);
+
+                // Deduct from inventory
+                if (item.getInventoryItemId() != -1) {
+                    InventoryItem invItem = db.inventoryDao().getItemById(item.getInventoryItemId());
+                    if (invItem != null) {
+                        // Deduct quantity
+                        invItem.setQuantity(invItem.getQuantity() - item.getQuantityUsed());
+
+                        // For continuous items, also deduct size
+                        if (invItem.isContinuous() && item.getSizeUsed() > 0) {
+                            invItem.setSizeValue(invItem.getSizeValue() - item.getSizeUsed());
+                            if (invItem.getSizeValue() <= 0) {
+                                invItem.setSizeValue(0);
+                                invItem.setQuantity(0);
+                            }
+                        }
+
+                        db.inventoryDao().update(invItem);
+                    }
+                }
             }
 
             runOnUiThread(() -> {

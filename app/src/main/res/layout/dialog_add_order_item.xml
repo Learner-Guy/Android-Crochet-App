@@ -18,6 +18,14 @@
             android:inputType="none" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:id="@+id/tv_item_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,18 +40,30 @@
             android:inputType="number" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Size Used - only visible for continuous items -->
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_size_used"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Unit Price (₹)"
+        android:hint="Amount Used"
         android:layout_marginTop="12dp"
+        android:visibility="gone"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/et_unit_price"
+            android:id="@+id/et_size_used"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/tv_size_available"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="12sp"
+        android:textColor="@android:color/holo_green_dark"
+        android:visibility="gone" />
 
 </LinearLayout>

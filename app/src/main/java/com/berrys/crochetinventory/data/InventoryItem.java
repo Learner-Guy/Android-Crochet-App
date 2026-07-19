@@ -23,6 +23,11 @@ public class InventoryItem {
     private String iconName;
     private Date createdDate;
 
+    // Size fields
+    private String itemType;      // "DISCRETE" or "CONTINUOUS"
+    private double sizeValue;     // e.g., 5.0 (meters), 100.0 (grams)
+    private String sizeUnit;      // "mm", "cm", "m", "g", "kg", "yards", "inches"
+
     public InventoryItem(String name, String category, String color, int quantity,
                          String unit, double cost, String supplier, int lowStock,
                          String notes, String imagePath, String iconName, Date createdDate) {
@@ -38,8 +43,12 @@ public class InventoryItem {
         this.imagePath = imagePath;
         this.iconName = iconName;
         this.createdDate = createdDate;
+        this.itemType = "DISCRETE";
+        this.sizeValue = 0;
+        this.sizeUnit = "";
     }
 
+    // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public String getName() { return name; }
@@ -66,4 +75,25 @@ public class InventoryItem {
     public void setIconName(String iconName) { this.iconName = iconName; }
     public Date getCreatedDate() { return createdDate; }
     public void setCreatedDate(Date createdDate) { this.createdDate = createdDate; }
+
+    // Size getters/setters
+    public String getItemType() { return itemType; }
+    public void setItemType(String itemType) { this.itemType = itemType; }
+    public double getSizeValue() { return sizeValue; }
+    public void setSizeValue(double sizeValue) { this.sizeValue = sizeValue; }
+    public String getSizeUnit() { return sizeUnit; }
+    public void setSizeUnit(String sizeUnit) { this.sizeUnit = sizeUnit; }
+
+    // Helper: get display string for size
+    public String getSizeDisplay() {
+        if ("CONTINUOUS".equals(itemType) && sizeValue > 0) {
+            return sizeValue + " " + sizeUnit;
+        }
+        return "";
+    }
+
+    // Helper: check if this is a continuous item
+    public boolean isContinuous() {
+        return "CONTINUOUS".equals(itemType);
+    }
 }

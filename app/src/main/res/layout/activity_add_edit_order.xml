@@ -233,12 +233,28 @@
                 android:minLines="2" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_save_order"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Save Order" />
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save_order"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Save Order" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_cancel_order"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="Cancel"
+                style="@style/Widget.Material3.Button.OutlinedButton" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

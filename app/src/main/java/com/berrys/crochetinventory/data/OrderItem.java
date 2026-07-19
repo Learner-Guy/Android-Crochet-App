@@ -30,6 +30,10 @@ public class OrderItem {
     private double totalAmount;       // quantityUsed * unitPrice
     private String notes;
 
+    // Size tracking for continuous items
+    private double sizeUsed;          // Amount of size used (e.g., 2.5 meters)
+    private String sizeUnit;          // Same as inventory size unit
+
     public OrderItem(int orderId, int inventoryItemId, String customItemName,
                      int quantityUsed, double unitPrice, String notes) {
         this.orderId = orderId;
@@ -39,6 +43,8 @@ public class OrderItem {
         this.unitPrice = unitPrice;
         this.totalAmount = quantityUsed * unitPrice;
         this.notes = notes;
+        this.sizeUsed = 0;
+        this.sizeUnit = "";
     }
 
     // Getters and Setters
@@ -58,4 +64,9 @@ public class OrderItem {
     public void setTotalAmount(double totalAmount) { this.totalAmount = totalAmount; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+
+    public double getSizeUsed() { return sizeUsed; }
+    public void setSizeUsed(double sizeUsed) { this.sizeUsed = sizeUsed; }
+    public String getSizeUnit() { return sizeUnit; }
+    public void setSizeUnit(String sizeUnit) { this.sizeUnit = sizeUnit; }
 }

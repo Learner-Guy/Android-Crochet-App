@@ -9,10 +9,7 @@
         android:name="com.berrys.crochetinventory.ui.dashboard.DashboardFragment"
         android:label="Dashboard" />
 
-    <fragment
-        android:id="@+id/nav_inventory"
-        android:name="com.berrys.crochetinventory.ui.inventory.InventoryFragment"
-        android:label="Inventory" />
+
 
     <fragment
         android:id="@+id/nav_orders"
@@ -23,6 +20,12 @@
         android:id="@+id/nav_categories"
         android:name="com.berrys.crochetinventory.ui.categories.CategoriesFragment"
         android:label="Categories" />
+
+    <fragment
+        android:id="@+id/nav_inventory"
+        android:name="com.berrys.crochetinventory.ui.inventory.InventoryFragment"
+        android:label="Inventory" />
+
 
     <fragment
         android:id="@+id/nav_low_stock"
