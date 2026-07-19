@@ -49,10 +49,10 @@ public class InventoryFragment extends Fragment {
         setupCategoryFilter();
         setupSearch();
 
-        FloatingActionButton fab = view.findViewById(R.id.fab_add_inventory);
-        fab.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), AddEditItemActivity.class));
-        });
+//        FloatingActionButton fab = view.findViewById(R.id.fab_add_inventory);
+//        fab.setOnClickListener(v -> {
+//            startActivity(new Intent(requireContext(), AddEditItemActivity.class));
+//        });
 
         return view;
     }

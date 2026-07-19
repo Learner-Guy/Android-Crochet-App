@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.berrys.crochetinventory.R;
-import com.berrys.crochetinventory.data.AppDatabase;
 import com.berrys.crochetinventory.data.InventoryItem;
 import com.berrys.crochetinventory.data.IconPack;
 import com.google.android.material.button.MaterialButton;
@@ -41,7 +40,8 @@ public class InventoryAdapter extends ListAdapter<InventoryItem, InventoryAdapte
                 return old.getName().equals(next.getName())
                         && old.getQuantity() == next.getQuantity()
                         && Objects.equals(old.getIconName(), next.getIconName())
-                        && Objects.equals(old.getImagePath(), next.getImagePath());
+                        && Objects.equals(old.getImagePath(), next.getImagePath())
+                        && old.getSizeValue() == next.getSizeValue();
             }
         });
         this.listener = listener;
@@ -105,9 +105,14 @@ public class InventoryAdapter extends ListAdapter<InventoryItem, InventoryAdapte
             tvName.setText(item.getName());
             tvCategory.setText(item.getCategory());
 
-            // Summary line: Qty + Color
+            // Summary line: Qty + Color + Size (if continuous)
             String color = (item.getColor() != null && !item.getColor().isEmpty()) ? item.getColor() : "-";
-            tvSummary.setText("Qty: " + item.getQuantity() + " " + item.getUnit() + " | Color: " + color);
+            String summary = "Qty: " + item.getQuantity() + " " + item.getUnit();
+            if (item.isContinuous() && item.getSizeValue() > 0) {
+                summary += " | Size: " + item.getSizeValue() + " " + item.getSizeUnit();
+            }
+            summary += " | Color: " + color;
+            tvSummary.setText(summary);
 
             // Low stock alert border
             if (item.getQuantity() <= item.getLowStock()) {
@@ -136,7 +141,11 @@ public class InventoryAdapter extends ListAdapter<InventoryItem, InventoryAdapte
 
             // Expandable details
             tvDetailColor.setText("Color: " + color);
-            tvDetailQty.setText("Quantity: " + item.getQuantity() + " " + item.getUnit());
+            String qtyDetail = "Quantity: " + item.getQuantity() + " " + item.getUnit();
+            if (item.isContinuous() && item.getSizeValue() > 0) {
+                qtyDetail += "\nSize: " + item.getSizeValue() + " " + item.getSizeUnit();
+            }
+            tvDetailQty.setText(qtyDetail);
             tvDetailCost.setText("Cost: " + NumberFormat.getCurrencyInstance().format(item.getCost()));
             tvDetailSupplier.setText("Supplier: " + (item.getSupplier() != null ? item.getSupplier() : "-"));
             tvDetailLowStock.setText("Low Stock Alert: " + item.getLowStock());

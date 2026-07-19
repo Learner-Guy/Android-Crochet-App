@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,8 +35,9 @@ public class AddEditItemActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
     private ArrayAdapter<String> categoryAdapter;
     private TextInputEditText etName, etColor, etQuantity, etUnit, etCost,
-            etSupplier, etLowStock, etNotes;
-    private AutoCompleteTextView actCategory;
+            etSupplier, etLowStock, etNotes, etSizeValue;
+    private AutoCompleteTextView actCategory, actItemType, actSizeUnit;
+    private LinearLayout layoutSize;
     private ImageView ivPreview;
     private MaterialButton btnSave, btnSelectImage, btnRemoveImage;
     private ImageView ivSelectedIcon;
@@ -46,6 +48,8 @@ public class AddEditItemActivity extends AppCompatActivity {
     private String oldImagePath = "";
     private int itemId = -1;
 
+    private static final String[] ITEM_TYPES = {"DISCRETE", "CONTINUOUS"};
+    private static final String[] SIZE_UNITS = {"mm", "cm", "m", "g", "kg", "yards", "inches", "feet"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +63,8 @@ public class AddEditItemActivity extends AppCompatActivity {
         db = AppDatabase.getInstance(this);
         initViews();
         setupCategoryDropdown();
+        setupItemTypeDropdown();
+        setupSizeUnitDropdown();
 
         // Icon picker
         ivSelectedIcon = findViewById(R.id.iv_selected_icon);
@@ -88,6 +94,7 @@ public class AddEditItemActivity extends AppCompatActivity {
             loadItem(itemId);
         } else {
             setTitle("Add Item");
+            actItemType.setText("DISCRETE", false);
         }
 
         btnSelectImage.setOnClickListener(v -> pickImage());
@@ -98,6 +105,10 @@ public class AddEditItemActivity extends AppCompatActivity {
     private void initViews() {
         etName = findViewById(R.id.et_name);
         actCategory = findViewById(R.id.act_category);
+        actItemType = findViewById(R.id.act_item_type);
+        layoutSize = findViewById(R.id.layout_size);
+        etSizeValue = findViewById(R.id.et_size_value);
+        actSizeUnit = findViewById(R.id.act_size_unit);
         etColor = findViewById(R.id.et_color);
         etQuantity = findViewById(R.id.et_quantity);
         etUnit = findViewById(R.id.et_unit);
@@ -124,6 +135,28 @@ public class AddEditItemActivity extends AppCompatActivity {
             }
             categoryAdapter.notifyDataSetChanged();
         });
+    }
+
+    private void setupItemTypeDropdown() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, ITEM_TYPES);
+        actItemType.setAdapter(adapter);
+        actItemType.setOnItemClickListener((parent, view, position, id) -> {
+            String selected = ITEM_TYPES[position];
+            if ("CONTINUOUS".equals(selected)) {
+                layoutSize.setVisibility(View.VISIBLE);
+            } else {
+                layoutSize.setVisibility(View.GONE);
+                etSizeValue.setText("");
+                actSizeUnit.setText("", false);
+            }
+        });
+    }
+
+    private void setupSizeUnitDropdown() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, SIZE_UNITS);
+        actSizeUnit.setAdapter(adapter);
     }
 
     private void pickImage() {
@@ -221,6 +254,17 @@ public class AddEditItemActivity extends AppCompatActivity {
                     etLowStock.setText(String.valueOf(item.getLowStock()));
                     etNotes.setText(item.getNotes() != null ? item.getNotes() : "");
 
+                    // Load item type and size
+                    String itemType = item.getItemType() != null ? item.getItemType() : "DISCRETE";
+                    actItemType.setText(itemType, false);
+                    if ("CONTINUOUS".equals(itemType)) {
+                        layoutSize.setVisibility(View.VISIBLE);
+                        etSizeValue.setText(String.valueOf(item.getSizeValue()));
+                        actSizeUnit.setText(item.getSizeUnit() != null ? item.getSizeUnit() : "", false);
+                    } else {
+                        layoutSize.setVisibility(View.GONE);
+                    }
+
                     // Load image preview
                     if (imagePath != null && !imagePath.isEmpty()) {
                         File imgFile = new File(imagePath);
@@ -256,6 +300,7 @@ public class AddEditItemActivity extends AppCompatActivity {
         String supplier = etSupplier.getText().toString().trim();
         String lowStockStr = etLowStock.getText().toString().trim();
         String notes = etNotes.getText().toString().trim();
+        String itemType = actItemType.getText().toString().trim();
 
         if (name.isEmpty() || category.isEmpty() || quantityStr.isEmpty()) {
             Toast.makeText(this, "Name, Category, and Quantity are required", Toast.LENGTH_SHORT).show();
@@ -273,14 +318,26 @@ public class AddEditItemActivity extends AppCompatActivity {
                 imagePath, selectedIconName, new Date()
         );
 
+        // Set size fields
+        item.setItemType(itemType.isEmpty() ? "DISCRETE" : itemType);
+        if ("CONTINUOUS".equals(item.getItemType())) {
+            String sizeValueStr = etSizeValue.getText().toString().trim();
+            double sizeValue = sizeValueStr.isEmpty() ? 0 : Double.parseDouble(sizeValueStr);
+            item.setSizeValue(sizeValue);
+            item.setSizeUnit(actSizeUnit.getText() != null ? actSizeUnit.getText().toString().trim() : "");
+        } else {
+            item.setSizeValue(0);
+            item.setSizeUnit("");
+        }
+
         new Thread(() -> {
             if (itemId != -1) {
                 item.setId(itemId);
                 db.inventoryDao().update(item);
 
                 // Delete old image if it was removed
-                if (oldImagePath != null && !oldImagePath.isEmpty() &&
-                        (imagePath == null || imagePath.isEmpty() || !imagePath.equals(oldImagePath))) {
+                if (oldImagePath != null && !oldImagePath.isEmpty() && 
+                    (imagePath == null || imagePath.isEmpty() || !imagePath.equals(oldImagePath))) {
                     deleteImageFile(oldImagePath);
                 }
             } else {

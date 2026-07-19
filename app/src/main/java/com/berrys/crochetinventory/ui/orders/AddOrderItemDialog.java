@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -21,12 +22,13 @@ import java.util.List;
 public class AddOrderItemDialog extends DialogFragment {
 
     public interface OnItemAddedListener {
-        void onItemAdded(String itemName, int quantity, double unitPrice);
+        void onItemAdded(InventoryItem item, int quantity, double sizeUsed);
     }
 
     private OnItemAddedListener listener;
     private AppDatabase db;
     private List<InventoryItem> inventoryItems = new ArrayList<>();
+    private InventoryItem selectedItem = null;
 
     public void setListener(OnItemAddedListener listener) {
         this.listener = listener;
@@ -43,10 +45,12 @@ public class AddOrderItemDialog extends DialogFragment {
                 .inflate(R.layout.dialog_add_order_item, null);
 
         AutoCompleteTextView actItem = view.findViewById(R.id.act_item_name);
+        TextView tvItemInfo = view.findViewById(R.id.tv_item_info);
+        TextView tvSizeAvailable = view.findViewById(R.id.tv_size_available);
         TextInputEditText etQuantity = view.findViewById(R.id.et_quantity);
-        TextInputEditText etPrice = view.findViewById(R.id.et_unit_price);
+        TextInputEditText etSizeUsed = view.findViewById(R.id.et_size_used);
+        View layoutSizeUsed = view.findViewById(R.id.layout_size_used);
 
-        // Load inventory items for dropdown
         if (db != null) {
             db.inventoryDao().getAllItems().observe((LifecycleOwner) requireContext(), items -> {
                 inventoryItems.clear();
@@ -55,7 +59,13 @@ public class AddOrderItemDialog extends DialogFragment {
                 }
                 List<String> itemNames = new ArrayList<>();
                 for (InventoryItem item : inventoryItems) {
-                    itemNames.add(item.getName() + " (" + item.getQuantity() + " " + item.getUnit() + " available)");
+                    String display = item.getName();
+                    if (item.isContinuous() && item.getSizeValue() > 0) {
+                        display += " (" + item.getSizeValue() + " " + item.getSizeUnit() + " available)";
+                    } else {
+                        display += " (" + item.getQuantity() + " " + item.getUnit() + " available)";
+                    }
+                    itemNames.add(display);
                 }
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                         android.R.layout.simple_dropdown_item_1line, itemNames);
@@ -63,30 +73,63 @@ public class AddOrderItemDialog extends DialogFragment {
             });
         }
 
+        actItem.setOnItemClickListener((parent, v, position, id) -> {
+            if (position < inventoryItems.size()) {
+                selectedItem = inventoryItems.get(position);
+                tvItemInfo.setText("Cost: ₹" + selectedItem.getCost() + " per " + selectedItem.getUnit());
+                tvItemInfo.setVisibility(View.VISIBLE);
+
+                if (selectedItem.isContinuous()) {
+                    layoutSizeUsed.setVisibility(View.VISIBLE);
+                    etSizeUsed.setHint("Amount used (" + selectedItem.getSizeUnit() + ")");
+                    tvSizeAvailable.setText("Available: " + selectedItem.getSizeValue() + " " + selectedItem.getSizeUnit());
+                    tvSizeAvailable.setVisibility(View.VISIBLE);
+                } else {
+                    layoutSizeUsed.setVisibility(View.GONE);
+                    tvSizeAvailable.setVisibility(View.GONE);
+                }
+            }
+        });
+
         return new AlertDialog.Builder(requireContext())
                 .setTitle("Add Inventory Item")
                 .setView(view)
                 .setPositiveButton("Add", (dialog, which) -> {
-                    String selected = actItem.getText().toString().trim();
+                    if (selectedItem == null) return;
                     String qtyStr = etQuantity.getText().toString().trim();
-                    String priceStr = etPrice.getText().toString().trim();
+                    if (qtyStr.isEmpty()) return;
 
-                    if (selected.isEmpty() || qtyStr.isEmpty() || priceStr.isEmpty()) {
+                    int quantity = Integer.parseInt(qtyStr);
+                    double sizeUsed = 0;
+
+                    // Validate quantity
+                    if (quantity > selectedItem.getQuantity()) {
+                        android.widget.Toast.makeText(requireContext(),
+                            "Not enough stock. Available: " + selectedItem.getQuantity(),
+                            android.widget.Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    // Extract item name from "ItemName (Qty available)"
-                    String itemName = selected;
-                    int parenIndex = selected.indexOf(" (");
-                    if (parenIndex > 0) {
-                        itemName = selected.substring(0, parenIndex);
+                    // For continuous items, validate size used
+                    if (selectedItem.isContinuous()) {
+                        String sizeStr = etSizeUsed.getText().toString().trim();
+                        if (sizeStr.isEmpty()) {
+                            android.widget.Toast.makeText(requireContext(),
+                                "Please enter amount used",
+                                android.widget.Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        sizeUsed = Double.parseDouble(sizeStr);
+                        if (sizeUsed > selectedItem.getSizeValue()) {
+                            android.widget.Toast.makeText(requireContext(),
+                                "Not enough material. Available: " + selectedItem.getSizeValue() + " " + selectedItem.getSizeUnit(),
+                                android.widget.Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                     }
 
-                    int quantity = Integer.parseInt(qtyStr);
-                    double unitPrice = Double.parseDouble(priceStr);
-
                     if (listener != null) {
-                        listener.onItemAdded(itemName, quantity, unitPrice);
+                        listener.onItemAdded(selectedItem, quantity, sizeUsed);
                     }
                 })
                 .setNegativeButton("Cancel", null)

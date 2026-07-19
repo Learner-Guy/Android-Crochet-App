@@ -38,6 +38,16 @@
             android:parentActivityName=".MainActivity"
             android:label="Add/Edit Order" />
 
+        <activity
+            android:name=".ui.orders.OrderDetailActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="Order Details" />
+
+        <activity
+            android:name=".ui.orders.ImageViewerActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="Image" />
+
     </application>
 
 </manifest>

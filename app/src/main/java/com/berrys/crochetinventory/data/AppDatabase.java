@@ -8,7 +8,7 @@ import androidx.room.TypeConverters;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {InventoryItem.class, Category.class, Order.class, OrderItem.class, BusinessProfile.class}, version = 4, exportSchema = false)
+@Database(entities = {InventoryItem.class, Category.class, Order.class, OrderItem.class, BusinessProfile.class}, version = 5, exportSchema = false)
 @TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase {
     private static volatile AppDatabase instance;
@@ -36,7 +36,6 @@ public abstract class AppDatabase extends RoomDatabase {
     static final Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
-            // Create orders table
             database.execSQL("CREATE TABLE orders (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                     "customerName TEXT, " +
@@ -65,7 +64,6 @@ public abstract class AppDatabase extends RoomDatabase {
                     "estimateBillPath TEXT, " +
                     "finalBillPath TEXT)");
 
-            // Create order_items table
             database.execSQL("CREATE TABLE order_items (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                     "orderId INTEGER NOT NULL, " +
@@ -75,11 +73,12 @@ public abstract class AppDatabase extends RoomDatabase {
                     "unitPrice REAL NOT NULL DEFAULT 0, " +
                     "totalAmount REAL NOT NULL DEFAULT 0, " +
                     "notes TEXT, " +
-                    "FOREIGN KEY(orderId) REFERENCES orders(id) ON DELETE CASCADE)");
+                    "FOREIGN KEY(orderId) REFERENCES orders(id) ON DELETE CASCADE, " +
+                    "FOREIGN KEY(inventoryItemId) REFERENCES inventory(id) ON DELETE SET NULL)");
 
             database.execSQL("CREATE INDEX index_order_items_orderId ON order_items(orderId)");
+            database.execSQL("CREATE INDEX index_order_items_inventoryItemId ON order_items(inventoryItemId)");
 
-            // Create business_profile table
             database.execSQL("CREATE TABLE business_profile (" +
                     "id INTEGER PRIMARY KEY NOT NULL, " +
                     "businessName TEXT, " +
@@ -95,6 +94,20 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // Add size fields to inventory table
+            database.execSQL("ALTER TABLE inventory ADD COLUMN itemType TEXT DEFAULT 'DISCRETE'");
+            database.execSQL("ALTER TABLE inventory ADD COLUMN sizeValue REAL NOT NULL DEFAULT 0");
+            database.execSQL("ALTER TABLE inventory ADD COLUMN sizeUnit TEXT DEFAULT ''");
+
+            // Add sizeUsed to order_items
+            database.execSQL("ALTER TABLE order_items ADD COLUMN sizeUsed REAL NOT NULL DEFAULT 0");
+            database.execSQL("ALTER TABLE order_items ADD COLUMN sizeUnit TEXT DEFAULT ''");
+        }
+    };
+
     public static synchronized AppDatabase getInstance(Context context) {
         if (instance == null) {
             synchronized (AppDatabase.class) {
@@ -104,7 +117,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                     AppDatabase.class,
                                     "crochet_inventory_db"
                             )
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                             .fallbackToDestructiveMigration()
                             .build();
                 }

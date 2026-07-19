@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.berrys.crochetinventory.R;
 import com.berrys.crochetinventory.data.AppDatabase;
-import com.berrys.crochetinventory.data.Order;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 
@@ -47,8 +46,8 @@ public class OrdersFragment extends Fragment {
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new OrdersAdapter(order -> {
-            // Open order detail/edit
-            Intent intent = new Intent(requireContext(), AddEditOrderActivity.class);
+            // Open order detail (view mode)
+            Intent intent = new Intent(requireContext(), OrderDetailActivity.class);
             intent.putExtra("order_id", order.getId());
             startActivity(intent);
         });
