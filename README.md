@@ -1,209 +1,370 @@
-# Crochet Inventory
+# 🧶 Crochet Inventory & Order Management
 
-A lightweight Android application for managing crochet inventory, categories, and low-stock items. Designed for small crochet businesses and hobbyists who need a simple offline inventory management solution.
+A modern Android application built with **Java** and **Room Database** for small crochet businesses to manage inventory, customer orders, categories, and business information—all completely offline.
+
+Whether you're selling handmade crochet products locally or through social media, this app helps organize your business in one place.
 
 ---
 
-## Features
+# Features
 
-- Dashboard with inventory statistics
-- Add, edit and delete inventory items
-- Category management
-- Low stock tracking
+## 📦 Inventory Management
+
+- Add inventory items
+- Edit existing items
+- Delete inventory items
+- Track available quantity
+- Set low-stock thresholds
 - Search inventory
-- Filter inventory by category
-- Material Design UI
-- Offline storage using Room Database
-- Fast RecyclerView-based lists
+- Category-based filtering
+- Inventory images
+- Notes for each item
 
 ---
 
-## Screens
+## 🗂 Category Management
 
-- Dashboard
-- Inventory
-- Categories
-- Low Stock
-
----
-
-## Tech Stack
-
-| Technology | Purpose |
-|------------|---------|
-| Java | Application development |
-| Android SDK | Native Android development |
-| Room Database | Local database |
-| LiveData | Reactive UI updates |
-| Navigation Component | Screen navigation |
-| RecyclerView | Item listing |
-| View Binding | View access |
-| Material Design Components | UI |
+- Create unlimited categories
+- Edit category names
+- Delete categories
+- Category icon picker
+- Organize products efficiently
 
 ---
 
-## Requirements
+## 🛒 Order Management
 
-- Android Studio Hedgehog or newer
-- JDK 8+
-- Android SDK 34
-- Minimum Android Version: API 24 (Android 7.0)
+- Create customer orders
+- Edit orders
+- Delete orders
+- Add multiple products to an order
+- View order details
+- Order image attachments
+- Track order status
+- Manage order quantities
 
 ---
 
-## Project Structure
+## 📊 Dashboard
+
+- Total inventory count
+- Total categories
+- Total orders
+- Low-stock summary
+- Quick overview of business data
+
+---
+
+## ⚠ Low Stock Monitoring
+
+Automatically identifies products whose quantity has fallen below the configured threshold.
+
+---
+
+## 🏢 Business Profile
+
+Store business information such as:
+
+- Business name
+- Contact information
+- Additional business details
+
+---
+
+## 🖼 Image Support
+
+- Attach images to inventory items
+- Attach images to customer orders
+- Full-screen image viewer
+
+---
+
+## 📱 Material Design UI
+
+- Clean interface
+- RecyclerView-based lists
+- Floating Action Buttons
+- Responsive layouts
+- Easy navigation
+
+---
+
+# Technology Stack
+
+| Component | Technology |
+|------------|------------|
+| Language | Java |
+| Platform | Android |
+| Architecture | MVVM-inspired |
+| Database | Room Database |
+| Storage | SQLite |
+| UI | Material Components |
+| Navigation | Navigation Component |
+| Build Tool | Gradle (Groovy DSL) |
+| Image Handling | Android Image APIs |
+
+---
+
+# Project Structure
 
 ```
-app/
- ├── data/
- │    ├── AppDatabase
- │    ├── InventoryDao
- │    ├── InventoryItem
- │    ├── Category
- │    └── DateConverter
- │
- ├── ui/
- │    ├── dashboard/
- │    ├── inventory/
- │    ├── categories/
- │    ├── lowstock/
- │    └── components/
- │
- ├── MainActivity.java
- └── AndroidManifest.xml
+app
+│
+├── data
+│   ├── AppDatabase
+│   ├── InventoryDao
+│   ├── OrderDao
+│   ├── InventoryItem
+│   ├── Order
+│   ├── OrderItem
+│   ├── Category
+│   ├── BusinessProfile
+│   ├── OrderStatus
+│   ├── IconPack
+│   └── DateConverter
+│
+├── ui
+│   ├── dashboard
+│   ├── inventory
+│   ├── categories
+│   ├── orders
+│   ├── lowstock
+│   └── components
+│
+├── MainActivity.java
+│
+└── AndroidManifest.xml
 ```
 
 ---
 
-## Database
+# Database
 
-The application uses Room Database for offline persistence.
+The application uses **Room Database** for offline persistence.
 
-### Main Entities
+## Entities
 
 ### InventoryItem
 
-Stores inventory information including:
+Stores
 
-- Item Name
+- Product Name
 - Category
 - Quantity
 - Low Stock Threshold
 - Notes
-- Image (optional)
-- Created Date
+- Product Image
+
+---
 
 ### Category
 
-Stores user-defined inventory categories with customizable icons.
+Stores
+
+- Category Name
+- Category Icon
 
 ---
 
-## Application Flow
+### Order
+
+Stores
+
+- Customer Name
+- Order Date
+- Delivery Date
+- Status
+- Notes
+- Images
+
+---
+
+### OrderItem
+
+Stores
+
+- Linked Product
+- Quantity
+- Price (if applicable)
+
+---
+
+### BusinessProfile
+
+Stores business details used throughout the application.
+
+---
+
+# Application Flow
 
 ```
-Dashboard
-      │
-      ├── Inventory
-      │      ├── Add Item
-      │      ├── Edit Item
-      │      ├── Delete Item
-      │      └── Search / Filter
-      │
-      ├── Categories
-      │      ├── Create
-      │      ├── Edit
-      │      └── Select Icon
-      │
-      └── Low Stock
-             └── View & Update Items
+Home Dashboard
+        │
+        ├────────────── Inventory
+        │                 ├── Add Item
+        │                 ├── Edit Item
+        │                 ├── Delete Item
+        │                 └── Search
+        │
+        ├────────────── Categories
+        │                 ├── Add
+        │                 ├── Edit
+        │                 └── Delete
+        │
+        ├────────────── Orders
+        │                 ├── Create
+        │                 ├── Edit
+        │                 ├── Order Items
+        │                 ├── Images
+        │                 └── Status
+        │
+        ├────────────── Low Stock
+        │
+        └────────────── Business Profile
 ```
 
 ---
 
-## Dependencies
+# Current Features
 
-- AndroidX AppCompat
-- Material Components
-- RecyclerView
-- ConstraintLayout
-- Navigation Component
+- Offline-first architecture
 - Room Database
-- Lifecycle ViewModel
-- LiveData
-- Glide
+- Inventory management
+- Category management
+- Order management
+- Order details
+- Order images
+- Business profile
+- Dashboard statistics
+- Low-stock alerts
+- Search inventory
+- Material Design UI
 
 ---
 
-## Build
+# Future Roadmap
 
-Clone the repository:
+## Inventory
+
+- Barcode scanning
+- QR code support
+- Product pricing
+- Supplier management
+
+## Orders
+
+- Customer database
+- Delivery tracking
+- Payment status
+- Invoice generation
+- PDF receipts
+
+## Reports
+
+- Sales reports
+- Monthly analytics
+- Inventory valuation
+- Profit & loss
+
+## Cloud
+
+- Google Drive backup
+- Firebase Sync
+- Multi-device synchronization
+
+## User Experience
+
+- Dark mode
+- Notifications
+- Backup & Restore
+- Import/Export CSV
+- Multi-language support
+
+---
+
+# Requirements
+
+- Android Studio Hedgehog or newer
+- JDK 17 (recommended)
+- Android SDK 34
+- Minimum SDK: API 24
+- Gradle (Groovy DSL)
+
+---
+
+# Build
+
+Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/<username>/CrochetInventory.git
 ```
 
-Open the project in Android Studio.
+Open in Android Studio.
 
-Build the APK:
-
-```
-Build
- └── Generate APK(s)
-```
-
-or
+Build Debug APK
 
 ```bash
 ./gradlew assembleDebug
 ```
 
----
+Build Release APK
 
-## APK Output
-
-The generated APK is named:
-
-```
-CrochetInventory.apk
+```bash
+./gradlew assembleRelease
 ```
 
 ---
 
-## Current Capabilities
+# Why This App?
 
-- Offline inventory management
-- Dashboard statistics
-- Category-based organization
-- Search functionality
-- Low stock monitoring
-- Material Design interface
+Managing a crochet business using spreadsheets or notebooks becomes difficult as inventory and customer orders grow.
 
----
+This application centralizes:
 
-## Future Enhancements
+- Products
+- Categories
+- Inventory
+- Orders
+- Business Information
 
-- Barcode/QR code scanning
-- Cloud backup and synchronization
-- Inventory export (CSV/PDF)
-- Image compression
-- Dark mode
-- Sales tracking
-- Customer management
-- Order management
-- Expense tracking
-- Analytics and reports
+into a single offline Android application.
 
 ---
 
-## License
+# Recent Updates
 
-This project is intended for learning and personal/business use.
+### New Features
+
+- ✅ Complete Order Management module
+- ✅ Order Details screen
+- ✅ Order Item management
+- ✅ Business Profile support
+- ✅ Image Viewer
+- ✅ Inventory image support
+- ✅ Additional database entities
+- ✅ Improved navigation
+- ✅ Better UI components
+
+### Bug Fixes
+
+- Fixed inventory refresh issues
+- Improved Room database operations
+- Fixed navigation edge cases
+- Improved image handling
+- Enhanced RecyclerView performance
+- General stability improvements
+- UI consistency fixes
+- Minor crash fixes
 
 ---
 
-## Author
+# License
 
-Developed as an Android inventory management application for crochet businesses. 
+This project is available for educational and personal use. Add your preferred open-source license before public release.
 
-Crochet business management system by rishi.
+---
+
+# Author
+
+Developed as a native Android application to simplify inventory and order management for small crochet businesses.
