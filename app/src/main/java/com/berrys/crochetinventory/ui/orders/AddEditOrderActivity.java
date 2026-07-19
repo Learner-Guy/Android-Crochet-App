@@ -283,8 +283,18 @@ public class AddEditOrderActivity extends AppCompatActivity {
         String discountStr = etDiscountPercent.getText().toString().trim();
         String gstStr = etGstPercent.getText().toString().trim();
 
+
         if (customerName.isEmpty() || description.isEmpty() || estimatedPriceStr.isEmpty()) {
             Toast.makeText(this, "Customer name, description, and estimated price are required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // Phone number validation
+        if (customerPhone.isEmpty()) {
+            Toast.makeText(this, "Phone number is required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!customerPhone.matches("\\d{10}")) {
+            Toast.makeText(this, "Phone number must be exactly 10 digits", Toast.LENGTH_SHORT).show();
             return;
         }
 
